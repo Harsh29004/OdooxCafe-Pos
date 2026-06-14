@@ -20,6 +20,47 @@ const globalCss = `
     color: #1e293b;
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Brand-tinted text selection. */
+  ::selection { background: #d9bfd4; color: #2a1b27; }
+
+  /* Keyboard focus ring — only shows for keyboard users, not mouse clicks.
+     Gives every interactive element a consistent, accessible outline. */
+  :focus-visible {
+    outline: 2px solid #a06d93;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Slim, unobtrusive scrollbars (WebKit) that match the slate palette. */
+  * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1; border-radius: 999px;
+    border: 3px solid transparent; background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; background-clip: content-box; }
+
+  /* Entrance animations used by modals, popups and drawers. */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: translateY(8px) scale(.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Respect users who prefer less motion. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .001ms !important;
+      transition-duration: .001ms !important;
+    }
   }
 
   /* Printing a receipt: show only the #receipt block, sized like a till slip. */

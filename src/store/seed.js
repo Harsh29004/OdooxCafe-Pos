@@ -2,7 +2,38 @@
 // store/seed.js — the demo/seed data, in a plain JS module (no React/JSX) so
 // that BOTH the frontend store (store.jsx) and the Node backend (backend/seed.js)
 // import it as a single source of truth.
+//
+// Privacy notes (intentional design):
+//   • Employees are NEVER written here. Their names, emails and passwords are
+//     loaded from the .env file (VITE_ADMIN_* / VITE_EMP{n}_*) so no credential
+//     ever lives in committed source. See buildUsersFromEnv() below.
+//   • Customers are GENERATED procedurally from neutral word pools — this file
+//     contains no real person's contact details. The generated records are what
+//     gets written into the database; the source only holds the generator.
 // ---------------------------------------------------------------------------
+
+// This module runs in two very different environments:
+//   • the browser, bundled by Vite, where config comes from import.meta.env
+//   • the Node backend, where the same vars live on process.env
+// Reading import.meta.env directly throws in Node (it's undefined), so resolve
+// a single env source up front and read every VITE_* value through env().
+const viteEnv = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : null
+const nodeEnv = typeof process !== 'undefined' && process.env ? process.env : null
+function env(key, fallback = '') {
+  return (viteEnv && viteEnv[key]) || (nodeEnv && nodeEnv[key]) || fallback
+}
+
+// mulberry32 — tiny deterministic PRNG. Same seed → same sequence everywhere,
+// so the frontend fallback and the backend DB are seeded with identical data.
+function makeRng(seed) {
+  let a = seed >>> 0
+  return function rng() {
+    a |= 0; a = (a + 0x6D2B79F5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
 
 export const seedCategories = [
   { id: 'cat-coffee', name: 'Coffee', color: '#714B67' },
@@ -13,8 +44,8 @@ export const seedCategories = [
   { id: 'cat-dessert', name: 'Desserts', color: '#DB2777' },
 ]
 
-export const seedProducts = [
-  // ── Existing ──────────────────────────────────────────────────────────────
+// ── Hand-written base menu (36 items) ───────────────────────────────────────
+const baseProducts = [
   { id: 'p-1', name: 'Espresso', categoryId: 'cat-coffee', price: 120, uom: 'piece', tax: 5, description: 'Single shot of rich espresso.', kitchen: true },
   { id: 'p-2', name: 'Cappuccino', categoryId: 'cat-coffee', price: 180, uom: 'piece', tax: 5, description: 'Espresso with steamed milk foam.', kitchen: true },
   { id: 'p-3', name: 'Caffe Latte', categoryId: 'cat-coffee', price: 190, uom: 'piece', tax: 5, description: 'Smooth espresso with steamed milk.', kitchen: true },
@@ -31,8 +62,6 @@ export const seedProducts = [
   { id: 'p-14', name: 'Brownie', categoryId: 'cat-dessert', price: 160, uom: 'piece', tax: 12, description: 'Fudgy walnut brownie.', kitchen: true },
   { id: 'p-15', name: 'Mocha', categoryId: 'cat-coffee', price: 200, uom: 'piece', tax: 5, description: 'Espresso with chocolate and milk.', kitchen: true },
   { id: 'p-16', name: 'Bottled Cola', categoryId: 'cat-cold', price: 70, uom: 'piece', tax: 5, description: 'Classic chilled cola.', kitchen: false },
-
-  // ── New additions ─────────────────────────────────────────────────────────
   // ☕ Coffee
   { id: 'p-17', name: 'Americano', categoryId: 'cat-coffee', price: 140, uom: 'piece', tax: 5, description: 'Espresso diluted with hot water, lighter body.', kitchen: true },
   { id: 'p-18', name: 'Flat White', categoryId: 'cat-coffee', price: 200, uom: 'piece', tax: 5, description: 'Espresso with velvety steamed milk, minimal foam.', kitchen: true },
@@ -61,31 +90,117 @@ export const seedProducts = [
   { id: 'p-36', name: 'Ice Cream Scoop', categoryId: 'cat-dessert', price: 90, uom: 'piece', tax: 12, description: 'Single scoop — vanilla, chocolate, or strawberry.', kitchen: true },
 ]
 
-export const seedFloors = [
-  {
-    id: 'floor-1', name: 'Main Hall',
-    tables: [
-      { id: 't-1', number: '1', seats: 2, active: true },
-      { id: 't-2', number: '2', seats: 2, active: true },
-      { id: 't-3', number: '3', seats: 4, active: true },
-      { id: 't-4', number: '4', seats: 4, active: true },
-      { id: 't-5', number: '5', seats: 6, active: true },
-    ],
+// Pools used to generate the rest of the menu up to 100 products. Each combo is
+// "<modifier> <base>"; prices are picked within the category's band.
+const PRODUCT_POOLS = {
+  'cat-coffee': {
+    tax: 5, kitchen: true, priceMin: 100, priceMax: 250,
+    mods: ['Hazelnut', 'Vanilla', 'Caramel', 'Salted Caramel', 'Cinnamon', 'Coconut', 'Irish', 'Toffee Nut', 'Maple', 'Pumpkin Spice'],
+    bases: ['Latte', 'Cappuccino', 'Macchiato', 'Cortado', 'Frappe'],
   },
-  {
-    id: 'floor-2', name: 'Terrace',
-    tables: [
-      { id: 't-6', number: '6', seats: 2, active: true },
-      { id: 't-7', number: '7', seats: 4, active: true },
-      { id: 't-8', number: '8', seats: 4, active: false },
-    ],
+  'cat-tea': {
+    tax: 5, kitchen: true, priceMin: 80, priceMax: 160,
+    mods: ['Earl Grey', 'Jasmine', 'Chamomile', 'Hibiscus', 'Mint', 'Tulsi', 'Oolong', 'Darjeeling', 'Assam', 'Rose'],
+    bases: ['Tea', 'Iced Tea', 'Infusion'],
   },
+  'cat-pastry': {
+    tax: 12, kitchen: true, priceMin: 120, priceMax: 230,
+    mods: ['Chocolate', 'Apple', 'Raspberry', 'Custard', 'Pecan', 'Lemon', 'Strawberry', 'Hazelnut'],
+    bases: ['Danish', 'Scone', 'Eclair', 'Tart', 'Brioche', 'Puff'],
+  },
+  'cat-snacks': {
+    tax: 12, kitchen: true, priceMin: 90, priceMax: 250,
+    mods: ['Cheese', 'Paneer', 'Peri Peri', 'Veg', 'Spicy', 'Corn', 'Mushroom', 'Pesto'],
+    bases: ['Spring Rolls', 'Quesadilla', 'Wrap', 'Pizza Slice', 'Garlic Bread', 'Pasta', 'Sliders', 'Tacos'],
+  },
+  'cat-cold': {
+    tax: 5, kitchen: true, priceMin: 90, priceMax: 220,
+    mods: ['Strawberry', 'Mango', 'Blueberry', 'Passion Fruit', 'Chocolate', 'Oreo', 'Banana', 'Mixed Berry'],
+    bases: ['Milkshake', 'Smoothie', 'Frappe', 'Slush'],
+  },
+  'cat-dessert': {
+    tax: 12, kitchen: true, priceMin: 90, priceMax: 280,
+    mods: ['Chocolate', 'Strawberry', 'Caramel', 'Mango', 'Coffee', 'Red Velvet', 'Pistachio', 'Blueberry'],
+    bases: ['Mousse', 'Pudding', 'Pie', 'Cupcake', 'Macaron', 'Gelato', 'Cake Slice'],
+  },
+}
+
+function generateProducts(existing, target) {
+  const rng = makeRng(0x9E3779B1)
+  const used = new Set(existing.map((p) => p.name.toLowerCase()))
+  const out = existing.slice()
+
+  // Every possible "<mod> <base>" combo, across all categories.
+  const combos = []
+  for (const [categoryId, pool] of Object.entries(PRODUCT_POOLS)) {
+    for (const mod of pool.mods) for (const base of pool.bases) {
+      combos.push({ categoryId, pool, name: `${mod} ${base}` })
+    }
+  }
+  // Deterministic Fisher-Yates shuffle so the extra menu is varied but stable.
+  for (let i = combos.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    ;[combos[i], combos[j]] = [combos[j], combos[i]]
+  }
+
+  let n = existing.length
+  for (const c of combos) {
+    if (out.length >= target) break
+    if (used.has(c.name.toLowerCase())) continue
+    used.add(c.name.toLowerCase())
+    n++
+    const span = c.pool.priceMax - c.pool.priceMin
+    const price = Math.round((c.pool.priceMin + rng() * span) / 10) * 10
+    out.push({
+      id: 'p-' + n,
+      name: c.name,
+      categoryId: c.categoryId,
+      price,
+      uom: 'piece',
+      tax: c.pool.tax,
+      description: `Freshly prepared ${c.name.toLowerCase()}.`,
+      kitchen: c.pool.kitchen,
+    })
+  }
+  return out
+}
+
+export const seedProducts = generateProducts(baseProducts, 100)
+
+// ── Floors & tables (50 tables across 5 floors) ─────────────────────────────
+const FLOOR_DEFS = [
+  { id: 'floor-1', name: 'Main Hall', count: 12 },
+  { id: 'floor-2', name: 'Terrace', count: 10 },
+  { id: 'floor-3', name: 'Garden Court', count: 10 },
+  { id: 'floor-4', name: 'Rooftop', count: 10 },
+  { id: 'floor-5', name: 'Private Dining', count: 8 },
 ]
+
+function generateFloors() {
+  const rng = makeRng(0x7A8B9C)
+  const seatOptions = [2, 2, 4, 4, 4, 6, 8]
+  let num = 0
+  return FLOOR_DEFS.map((f) => {
+    const tables = []
+    for (let i = 0; i < f.count; i++) {
+      num++
+      tables.push({
+        id: 't-' + num,
+        number: String(num),
+        seats: seatOptions[Math.floor(rng() * seatOptions.length)],
+        active: rng() > 0.08, // ~8% parked out of service
+      })
+    }
+    return { id: f.id, name: f.name, tables }
+  })
+}
+
+export const seedFloors = generateFloors()
 
 export const seedPaymentMethods = {
   cash: { enabled: true },
   card: { enabled: true },
-  upi: { enabled: true, upiId: import.meta.env.VITE_UPI_ID || 'your-upi-id@bank' },
+  upi: { enabled: true, upiId: env('VITE_UPI_ID', 'your-upi-id@bank') },
 }
 
 export const seedCoupons = [
@@ -98,97 +213,154 @@ export const seedPromotions = [
   { id: 'pr-2', name: 'Big Order Bonus', appliesTo: 'order', minAmount: 800, discountType: 'fixed', value: 100 },
 ]
 
-// Values are loaded from your .env file (VITE_* variables).
-// Fill in .env and restart the dev server — never hardcode credentials here.
-export const seedUsers = [
-  {
+// ---------------------------------------------------------------------------
+// Users / employees — loaded ENTIRELY from .env, never hardcoded here.
+//
+// The admin comes from VITE_ADMIN_*; employees from VITE_EMP{n}_* (scanned
+// 1..MAX, gaps allowed). This keeps every name and password out of committed
+// source — fill them in your gitignored .env file. See .env.example.
+// ---------------------------------------------------------------------------
+const MAX_EMPLOYEES = 200
+
+function buildUsersFromEnv() {
+  const users = [{
     id: 'u-1',
-    name: import.meta.env.VITE_ADMIN_NAME || 'Admin Owner',
-    email: import.meta.env.VITE_ADMIN_EMAIL || 'admin@cafe.com',
-    password: import.meta.env.VITE_ADMIN_PASSWORD || '',
+    name: env('VITE_ADMIN_NAME', 'Admin Owner'),
+    email: env('VITE_ADMIN_EMAIL', 'admin@cafe.com'),
+    password: env('VITE_ADMIN_PASSWORD', ''),
     role: 'admin',
     archived: false,
-  },
-  {
-    id: 'u-2',
-    name: import.meta.env.VITE_EMP1_NAME || 'Employee 1',
-    email: import.meta.env.VITE_EMP1_EMAIL || '',
-    password: import.meta.env.VITE_EMP1_PASSWORD || '',
-    role: 'employee',
-    archived: false,
-  },
-  {
-    id: 'u-3',
-    name: import.meta.env.VITE_EMP2_NAME || 'Employee 2',
-    email: import.meta.env.VITE_EMP2_EMAIL || '',
-    password: import.meta.env.VITE_EMP2_PASSWORD || '',
-    role: 'employee',
-    archived: false,
-  },
-]
-
-export const seedCustomers = [
-  { id: 'cust-1', name: 'Walk-in', email: '', phone: '' },
-  { id: 'cust-2', name: 'Aarav Patel', email: 'aarav@example.com', phone: '+91 98765 43210' },
-  { id: 'cust-3', name: 'Sneha Iyer', email: 'sneha@example.com', phone: '+91 91234 56789' },
-]
-
-function daysAgo(n) {
-  const d = new Date()
-  d.setDate(d.getDate() - n)
-  d.setHours(10 + (n % 8), (n * 7) % 60, 0, 0)
-  return d.toISOString()
+  }]
+  for (let i = 1; i <= MAX_EMPLOYEES; i++) {
+    const email = env(`VITE_EMP${i}_EMAIL`, '')
+    if (!email) continue // not defined → skip (allows gaps in numbering)
+    users.push({
+      id: 'u-' + (i + 1),
+      name: env(`VITE_EMP${i}_NAME`, `Employee ${i}`),
+      email,
+      password: env(`VITE_EMP${i}_PASSWORD`, ''),
+      role: 'employee',
+      archived: false,
+    })
+  }
+  return users
 }
 
-export const seedOrders = [
-  {
-    id: 'o-1001', number: 'ORD-1001', tableId: 't-1', floorId: 'floor-1',
-    employeeId: 'u-2', customerId: 'cust-2', status: 'paid',
-    createdAt: daysAgo(0), paidAt: daysAgo(0), paymentMethod: 'card', couponId: null,
-    items: [
-      { productId: 'p-2', name: 'Cappuccino', price: 180, qty: 2, tax: 5 },
-      { productId: 'p-7', name: 'Butter Croissant', price: 150, qty: 1, tax: 12 },
-    ],
-  },
-  {
-    id: 'o-1002', number: 'ORD-1002', tableId: 't-3', floorId: 'floor-1',
-    employeeId: 'u-3', customerId: 'cust-3', status: 'paid',
-    createdAt: daysAgo(1), paidAt: daysAgo(1), paymentMethod: 'upi', couponId: null,
-    items: [
-      { productId: 'p-4', name: 'Cold Brew', price: 210, qty: 2, tax: 5 },
-      { productId: 'p-13', name: 'Cheesecake', price: 220, qty: 1, tax: 12 },
-      { productId: 'p-10', name: 'French Fries', price: 130, qty: 1, tax: 12 },
-    ],
-  },
-  {
-    id: 'o-1003', number: 'ORD-1003', tableId: 't-5', floorId: 'floor-1',
-    employeeId: 'u-2', customerId: 'cust-2', status: 'paid',
-    createdAt: daysAgo(2), paidAt: daysAgo(2), paymentMethod: 'cash', couponId: null,
-    items: [
-      { productId: 'p-3', name: 'Caffe Latte', price: 190, qty: 3, tax: 5 },
-      { productId: 'p-8', name: 'Chocolate Muffin', price: 140, qty: 2, tax: 12 },
-    ],
-  },
-  {
-    id: 'o-1004', number: 'ORD-1004', tableId: 't-2', floorId: 'floor-1',
-    employeeId: 'u-3', customerId: null, status: 'paid',
-    createdAt: daysAgo(3), paidAt: daysAgo(3), paymentMethod: 'upi', couponId: null,
-    items: [
-      { productId: 'p-15', name: 'Mocha', price: 200, qty: 2, tax: 5 },
-      { productId: 'p-14', name: 'Brownie', price: 160, qty: 2, tax: 12 },
-    ],
-  },
-  {
-    id: 'o-1005', number: 'ORD-1005', tableId: 't-7', floorId: 'floor-2',
-    employeeId: 'u-2', customerId: 'cust-3', status: 'paid',
-    createdAt: daysAgo(5), paidAt: daysAgo(5), paymentMethod: 'card', couponId: null,
-    items: [
-      { productId: 'p-9', name: 'Veg Sandwich', price: 170, qty: 2, tax: 12 },
-      { productId: 'p-11', name: 'Iced Lemonade', price: 110, qty: 2, tax: 5 },
-      { productId: 'p-1', name: 'Espresso', price: 120, qty: 1, tax: 5 },
-    ],
-  },
+export const seedUsers = buildUsersFromEnv()
+
+// ---------------------------------------------------------------------------
+// Customers — 500 records generated procedurally from neutral word pools.
+// No real person's details are written in source; the generated rows are what
+// land in the database. "Walk-in" (cust-1) is the anonymous default.
+// ---------------------------------------------------------------------------
+const CUST_FIRST = [
+  'Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Reyansh', 'Krishna', 'Ishaan', 'Rohan', 'Kabir',
+  'Aanya', 'Aadhya', 'Diya', 'Saanvi', 'Ananya', 'Ira', 'Myra', 'Pari', 'Anika', 'Navya',
+  'Karan', 'Nikhil', 'Rahul', 'Siddharth', 'Varun', 'Aryan', 'Dev', 'Yash', 'Manav', 'Ved',
+  'Sneha', 'Pooja', 'Riya', 'Tanvi', 'Meera', 'Kavya', 'Isha', 'Nisha', 'Priya', 'Shreya',
 ]
+const CUST_LAST = [
+  'Sharma', 'Verma', 'Iyer', 'Nair', 'Reddy', 'Mehta', 'Patel', 'Singh', 'Gupta', 'Rao',
+  'Joshi', 'Malhotra', 'Chopra', 'Kapoor', 'Desai', 'Bhatt', 'Menon', 'Ghosh', 'Shah', 'Agarwal',
+  'Pillai', 'Khanna', 'Banerjee', 'Mishra', 'Saxena', 'Sinha', 'Kaur', 'Trivedi', 'Hegde', 'Bose',
+]
+
+function generateCustomers(count) {
+  const rng = makeRng(0x5EEDFACE)
+  const out = [{ id: 'cust-1', name: 'Walk-in', email: '', phone: '' }]
+  for (let i = 2; i <= count; i++) {
+    const first = CUST_FIRST[Math.floor(rng() * CUST_FIRST.length)]
+    const last = CUST_LAST[Math.floor(rng() * CUST_LAST.length)]
+    // index keeps email unique even when a name pair repeats
+    const email = `${first}.${last}${i}`.toLowerCase() + '@example.com'
+    const phone = '+91 9' + String(1000 + Math.floor(rng() * 9000)) + ' ' + String(10000 + Math.floor(rng() * 90000))
+    out.push({ id: 'cust-' + i, name: `${first} ${last}`, email, phone })
+  }
+  return out
+}
+
+export const seedCustomers = generateCustomers(500)
+
+// ---------------------------------------------------------------------------
+// Order history — 5000 orders produced deterministically (seeded PRNG, so every
+// reload and both the frontend fallback + backend DB get the exact same data)
+// and split across all env-loaded employees with an uneven distribution.
+// ---------------------------------------------------------------------------
+
+// Every cashier (role === 'employee'), each with a deterministic uneven weight.
+const ORDER_EMPLOYEES = (() => {
+  const rng = makeRng(0xBADC0DE5)
+  const list = seedUsers
+    .filter((u) => u.role === 'employee')
+    .map((u) => ({ id: u.id, weight: 5 + Math.floor(rng() * 36) }))
+  // Fallback so orders always have a valid owner even if no employees in .env.
+  return list.length ? list : [{ id: seedUsers[0]?.id || 'u-1', weight: 1 }]
+})()
+
+// Flatten every table to { id, floorId } so orders can be placed anywhere.
+const ALL_TABLE_REFS = seedFloors.flatMap((f) => f.tables.map((tb) => ({ id: tb.id, floorId: f.id })))
+
+function buildSeedOrders(count = 5000) {
+  const rng = makeRng(0xC0FFEE)
+  const pick = (arr) => arr[Math.floor(rng() * arr.length)]
+  const pickWeighted = (arr) => {
+    const total = arr.reduce((s, x) => s + x.weight, 0)
+    let r = rng() * total
+    for (const x of arr) { if ((r -= x.weight) < 0) return x }
+    return arr[arr.length - 1]
+  }
+  // A date in the last `days`, with a plausible cafe hour (8am–9pm).
+  const dateWithin = (days) => {
+    const d = new Date()
+    d.setDate(d.getDate() - Math.floor(rng() * days))
+    d.setHours(8 + Math.floor(rng() * 13), Math.floor(rng() * 60), Math.floor(rng() * 60), 0)
+    return d
+  }
+
+  const orders = []
+  for (let i = 0; i < count; i++) {
+    const number = 1001 + i
+    const created = dateWithin(90)
+    const createdAt = created.toISOString()
+
+    // 1–4 distinct line items, qty 1–3 each.
+    const lineCount = 1 + Math.floor(rng() * 4)
+    const chosen = new Set()
+    const items = []
+    for (let j = 0; j < lineCount; j++) {
+      const p = pick(seedProducts)
+      if (chosen.has(p.id)) continue
+      chosen.add(p.id)
+      items.push({ productId: p.id, name: p.name, price: p.price, qty: 1 + Math.floor(rng() * 3), tax: p.tax })
+    }
+
+    const amount = Math.round(items.reduce((s, it) => s + it.price * it.qty * (1 + it.tax / 100), 0))
+
+    // Most orders are paid; a few are still drafts or were cancelled.
+    const roll = rng()
+    const status = roll < 0.9 ? 'paid' : roll < 0.96 ? 'draft' : 'cancelled'
+    const table = pick(ALL_TABLE_REFS)
+
+    orders.push({
+      id: 'o-' + number,
+      number: 'ORD-' + number,
+      tableId: table.id,
+      floorId: table.floorId,
+      employeeId: pickWeighted(ORDER_EMPLOYEES).id,
+      customerId: rng() < 0.55 ? pick(seedCustomers).id : null,
+      status,
+      createdAt,
+      paidAt: status === 'paid' ? createdAt : null,
+      paymentMethod: status === 'paid' ? pick(['cash', 'card', 'upi']) : null,
+      couponId: null,
+      items,
+    })
+  }
+  // Newest first, matching the original hand-written ordering.
+  return orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+}
+
+export const seedOrders = buildSeedOrders(5000)
 
 export function buildInitialState() {
   return {
@@ -208,6 +380,6 @@ export function buildInitialState() {
       editingOrderId: null,
       posSession: { open: false, openedAt: null, lastClosedAt: null, lastClosingAmount: 0 },
     },
-    orderCounter: 1006,
+    orderCounter: 6001, // next order number after the 5000 seeded (1001..6000)
   }
 }

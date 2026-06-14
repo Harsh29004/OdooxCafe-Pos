@@ -113,7 +113,7 @@ export function PosLayout() {
           <div style={{ position: 'relative' }} ref={menuRef}>
             <IconButton onClick={() => setMenuOpen((v) => !v)}>{menuOpen ? <X style={{ height: 20, width: 20 }} /> : <Menu style={{ height: 20, width: 20 }} />}</IconButton>
             {menuOpen && (
-              <div style={{ position: 'absolute', right: 0, top: 48, zIndex: 30, width: 240, ...cardStyle, padding: 8 }}>
+              <div style={{ position: 'absolute', right: 0, top: 48, zIndex: 30, width: 240, ...cardStyle, padding: 8, transformOrigin: 'top right', animation: 'scaleIn .15s cubic-bezier(0.16, 1, 0.3, 1)' }}>
                 <div style={{ borderBottom: `1px solid ${t.slate100}`, padding: '8px 12px' }}>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: t.slate800 }}>{currentUser?.name}</p>
                   <p style={{ margin: 0, fontSize: 12, color: t.slate400 }}>{currentUser?.email}</p>
@@ -178,8 +178,8 @@ export function FloorPopup({ open, onClose, onSelect, dismissable = true }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div onClick={dismissable ? onClose : undefined} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.6)' }} />
-      <div style={{ position: 'relative', width: '100%', maxWidth: 896, ...cardStyle, maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      <div onClick={dismissable ? onClose : undefined} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.6)', animation: 'fadeIn .2s ease' }} />
+      <div style={{ position: 'relative', width: '100%', maxWidth: 896, ...cardStyle, maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'scaleIn .25s cubic-bezier(0.16, 1, 0.3, 1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${t.slate100}`, padding: '16px 24px' }}>
           <div>
             <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: t.slate800 }}>Select a Table</h2>
@@ -647,8 +647,8 @@ function PaymentModal({ open, onClose, total, paymentMethods, onConfirm }) {
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.6)' }} />
-      <div style={{ position: 'relative', width: '100%', maxWidth: 448, ...cardStyle }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.6)', animation: 'fadeIn .2s ease' }} />
+      <div style={{ position: 'relative', width: '100%', maxWidth: 448, ...cardStyle, animation: 'scaleIn .2s cubic-bezier(0.16, 1, 0.3, 1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${t.slate100}`, padding: '16px 20px' }}>
           <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: t.slate800 }}>Payment</h3>
           <IconButton onClick={onClose}><X style={{ height: 20, width: 20 }} /></IconButton>
@@ -731,8 +731,8 @@ function ReceiptModal({ open, onClose, order, breakdown, customer, employee, tab
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.6)' }} />
-      <div style={{ position: 'relative', width: '100%', maxWidth: 384, ...cardStyle }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.6)', animation: 'fadeIn .2s ease' }} />
+      <div style={{ position: 'relative', width: '100%', maxWidth: 384, ...cardStyle, animation: 'scaleIn .25s cubic-bezier(0.16, 1, 0.3, 1)' }}>
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', borderBottom: `1px solid ${t.slate100}`, padding: '20px', textAlign: 'center' }}>
           <IconButton onClick={onClose} style={{ position: 'absolute', top: 8, right: 8 }}><X style={{ height: 20, width: 20 }} /></IconButton>
           <div style={{ marginBottom: 8, display: 'grid', placeItems: 'center', height: 48, width: 48, borderRadius: 999, background: t.emerald100, color: t.emerald600 }}><PartyPopper style={{ height: 24, width: 24 }} /></div>
@@ -853,8 +853,8 @@ export function Orders() {
 
       {detail && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 40, display: 'flex', justifyContent: 'flex-end' }}>
-          <div onClick={() => setDetail(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.4)' }} />
-          <div style={{ position: 'relative', height: '100%', width: '100%', maxWidth: 448, overflowY: 'auto', background: t.white, boxShadow: '-8px 0 24px rgba(0,0,0,0.15)' }}>
+          <div onClick={() => setDetail(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.4)', animation: 'fadeIn .2s ease' }} />
+          <div style={{ position: 'relative', height: '100%', width: '100%', maxWidth: 448, overflowY: 'auto', background: t.white, boxShadow: '-8px 0 24px rgba(0,0,0,0.15)', animation: 'slideInRight .25s cubic-bezier(0.16, 1, 0.3, 1)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${t.slate100}`, padding: '16px 20px' }}>
               <div>
                 <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: t.slate800 }}>{detail.number}</h3>

@@ -1,6 +1,7 @@
 // seed.js — populate the database from the SAME seed the frontend ships with,
 // so there is one source of truth. Runs automatically on first boot (empty DB),
 // or force a reset with:  node seed.js --reset
+import './loadenv.js' // must be first: populates process.env before the seed evaluates
 import { isEmpty } from './db.js'
 import { saveState } from './state.js'
 import { buildInitialState } from '../src/store/seed.js'

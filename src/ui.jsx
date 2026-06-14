@@ -70,6 +70,7 @@ const BTN_VARIANTS = {
 
 export function Button({ variant = 'primary', size = 'md', style, disabled, children, ...props }) {
   const [hover, setHover] = useState(false)
+  const [active, setActive] = useState(false)
   const v = BTN_VARIANTS[variant] || BTN_VARIANTS.primary
   const pad = size === 'sm' ? '6px 10px' : size === 'lg' ? '12px 16px' : '8px 16px'
   const fontSize = size === 'sm' ? 12 : size === 'lg' ? 16 : 14
@@ -77,13 +78,16 @@ export function Button({ variant = 'primary', size = 'md', style, disabled, chil
     <button
       disabled={disabled}
       onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      onMouseLeave={() => { setHover(false); setActive(false) }}
+      onMouseDown={() => setActive(true)}
+      onMouseUp={() => setActive(false)}
       style={{
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
         borderRadius: 8, padding: pad, fontSize, fontWeight: 600,
         border: v.border, background: hover && !disabled ? v.bgHover : v.bg, color: v.color,
         cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
-        transition: 'background .15s', whiteSpace: 'nowrap', userSelect: 'none',
+        transform: active && !disabled ? 'scale(0.97)' : 'none',
+        transition: 'background .15s, transform .1s', whiteSpace: 'nowrap', userSelect: 'none',
         ...style,
       }}
       {...props}
@@ -165,8 +169,8 @@ export function Modal({ open, onClose, title, children, footer, size = 'md' }) {
   if (!open) return null
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.5)' }} />
-      <div style={{ position: 'relative', width: '100%', maxWidth: MODAL_SIZES[size], ...cardStyle, maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(15,23,42,0.5)', animation: 'fadeIn .2s ease' }} />
+      <div style={{ position: 'relative', width: '100%', maxWidth: MODAL_SIZES[size], ...cardStyle, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'scaleIn .2s cubic-bezier(0.16, 1, 0.3, 1)' }}>
         {title && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${t.slate100}`, padding: '16px 20px' }}>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: t.slate800, margin: 0 }}>{title}</h3>

@@ -1,6 +1,7 @@
 // server.js — Express + WebSocket entry point for the Cafe POS backend.
 // Runs fully offline. On boot it seeds an empty DB, serves a real REST API,
 // and pushes live state changes to every connected device over a WebSocket.
+import './loadenv.js' // must be first: populates process.env before the seed evaluates
 import express from 'express'
 import cors from 'cors'
 import http from 'http'

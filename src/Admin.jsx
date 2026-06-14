@@ -249,13 +249,46 @@ export function Reports() {
 
   const exportCSV = () => {
     const rows = [['Order', 'Date', 'Employee', 'Amount']]
-    data.topOrders.forEach((o) => rows.push([o.number, new Date(o.paidAt || o.createdAt).toLocaleString(), userById(o.employeeId)?.name || '', o.amount]))
+    data.topOrders.forEach((o) =>
+      rows.push([
+        o.number,
+        new Date(o.paidAt || o.createdAt).toLocaleString(),
+        userById(o.employeeId)?.name || '',
+        o.amount,
+      ])
+    )
     const csv = rows.map((r) => r.join(',')).join('\n')
     const blob = new Blob([csv], { type: 'application/vnd.ms-excel' })
+    const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
+    a.href = url
     a.download = 'cafe-report.xls'
+    document.body.appendChild(a)   // required for Firefox + Chromium
     a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)        // free memory
+  }
+
+  const exportPDF = () => {
+    // Inject a temporary print stylesheet that hides everything except the
+    // reports content area, then invoke the browser's print dialog.
+    const style = document.createElement('style')
+    style.id = '__report-print-style'
+    style.textContent = `
+      @media print {
+        body > * { display: none !important; }
+        body > div > div > div > main { display: block !important; }
+        body > div > div > div > main > * { display: block !important; }
+        aside, header, nav { display: none !important; }
+      }
+    `
+    document.head.appendChild(style)
+    window.print()
+    // Remove after the print dialog closes (setTimeout 0 fires after print)
+    setTimeout(() => {
+      const el = document.getElementById('__report-print-style')
+      if (el) el.remove()
+    }, 500)
   }
 
   const periods = [{ v: 'today', l: 'Today' }, { v: 'week', l: 'This Week' }, { v: 'month', l: 'This Month' }, { v: 'all', l: 'All Time' }]
@@ -264,7 +297,7 @@ export function Reports() {
   return (
     <div>
       <PageHeader title="Sales Dashboard" subtitle="Real-time insights — everything updates as you change filters.">
-        <Button variant="outline" onClick={() => window.print()}><FileText style={ico} /> PDF</Button>
+        <Button variant="outline" onClick={exportPDF}><FileText style={ico} /> PDF</Button>
         <Button variant="outline" onClick={exportCSV}><Download style={ico} /> XLS</Button>
       </PageHeader>
 

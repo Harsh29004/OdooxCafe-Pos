@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrewMatic POS — Team Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --brand: #714B67;
+      --brand-light: #9B6B8F;
+      --brand-dark: #4A2E45;
+      --brand-glow: rgba(113, 75, 103, 0.4);
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --sky: #0ea5e9;
+      --rose: #f43f5e;
+      --slate900: #0f172a;
+      --slate800: #1e293b;
+      --slate700: #334155;
+      --slate600: #475569;
+      --slate400: #94a3b8;
+      --slate200: #e2e8f0;
+      --slate100: #f1f5f9;
+      --white: #ffffff;
+      --slide-w: 1280px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #080510;
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* ── NAVIGATION ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 40px;
+      background: rgba(8, 5, 16, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(113,75,103,0.3);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 20px;
+    }
+    .nav-logo .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--brand); display: inline-block; }
+    .nav-links { display: flex; gap: 6px; }
+    .nav-links a {
+      padding: 6px 14px; border-radius: 6px;
+      font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.6);
+      text-decoration: none; transition: all .2s;
+    }
+    .nav-links a:hover { color: white; background: rgba(113,75,103,0.2); }
+
+    /* ── SLIDE SHELL ── */
+    .slide {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 100px 40px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .slide-inner {
+      width: 100%; max-width: var(--slide-w);
+      position: relative; z-index: 2;
+    }
+
+    /* ── SHARED BACKGROUNDS ── */
+    .bg-grid::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(113,75,103,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(113,75,103,0.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: 0;
+    }
+    .glow-orb {
+      position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
+    }
+
+    /* ── LABEL / TAG ── */
+    .slide-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(113,75,103,0.4);
+      background: rgba(113,75,103,0.12);
+      border-radius: 999px;
+      padding: 6px 16px; font-size: 12px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand-light);
+      margin-bottom: 24px;
+    }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 1 — HERO
+    ───────────────────────────────────────────── */
+    #hero {
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(113,75,103,0.22) 0%, transparent 70%),
+                  #080510;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(113,75,103,0.5); background: rgba(113,75,103,0.15);
+      border-radius: 999px; padding: 6px 18px;
+      font-size: 13px; font-weight: 600; color: var(--brand-light); margin-bottom: 32px;
+    }
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(52px, 7vw, 90px);
+      font-weight: 800; line-height: 1.05; letter-spacing: -2px;
+    }
+    .hero-title .accent {
+      background: linear-gradient(135deg, var(--brand-light), #e0a5cf, var(--brand));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-subtitle {
+      margin-top: 24px; font-size: 20px; color: rgba(255,255,255,0.55);
+      line-height: 1.65; max-width: 640px; font-weight: 400;
+    }
+    .hero-cta {
+      margin-top: 48px; display: flex; flex-wrap: wrap; gap: 16px;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+      border: none; border-radius: 12px;
+      padding: 14px 28px; font-size: 15px; font-weight: 700;
+      color: white; cursor: pointer; text-decoration: none;
+      box-shadow: 0 0 40px rgba(113,75,103,0.5);
+      transition: all .25s; letter-spacing: -0.2px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(113,75,103,0.7); }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 12px; padding: 14px 28px; font-size: 15px; font-weight: 600;
+      color: rgba(255,255,255,0.8); cursor: pointer; text-decoration: none;
+      transition: all .25s;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.35); }
+
+    .hero-stats {
+      margin-top: 72px;
+      display: flex; flex-wrap: wrap; gap: 0;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; overflow: hidden;
+      background: rgba(255,255,255,0.03);
+    }
+    .stat-item {
+      flex: 1; min-width: 160px;
+      padding: 24px 32px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-num {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 36px; font-weight: 800; color: white; line-height: 1;
+    }
+    .stat-num span { color: var(--brand-light); }
+    .stat-label { margin-top: 6px; font-size: 13px; color: rgba(255,255,255,0.45); font-weight: 500; }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 2 — PROBLEM / VISION
+    ───────────────────────────────────────────── */
+    #problem { background: #080510; }
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 4.5vw, 58px);
+      font-weight: 800; line-height: 1.1; letter-spacing: -1px;
+    }
+    .section-subtitle {
+      margin-top: 16px; font-size: 18px;
+      color: rgba(255,255,255,0.5); max-width: 580px; line-height: 1.6;
+    }
+    .problem-grid {
+      margin-top: 56px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .problem-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 32px;
+      background: rgba(255,255,255,0.03);
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .problem-card::after {
+      content: '';
+      position: absolute; inset: 0; opacity: 0;
+      background: radial-gradient(circle at 30% 30%, rgba(113,75,103,0.15), transparent 70%);
+      transition: opacity .3s;
+    }
+    .problem-card:hover { border-color: rgba(113,75,103,0.4); transform: translateY(-4px); }
+    .problem-card:hover::after { opacity: 1; }
+    .problem-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; margin-bottom: 20px;
+    }
+    .problem-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .problem-card p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.65; }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 3 — ARCHITECTURE
+    ───────────────────────────────────────────── */
+    #architecture { background: linear-gradient(180deg, #080510 0%, #0d0818 100%); }
+    .arch-diagram {
+      margin-top: 56px;
+      display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0; align-items: center;
+    }
+    .arch-box {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 28px 24px;
+      background: rgba(255,255,255,0.04);
+      text-align: center;
+      transition: all .3s;
+    }
+    .arch-box:hover { border-color: rgba(113,75,103,0.5); background: rgba(113,75,103,0.08); }
+    .arch-box-icon { font-size: 36px; margin-bottom: 12px; }
+    .arch-box h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .arch-box .tech-tag {
+      display: inline-block; border-radius: 6px;
+      padding: 3px 10px; font-size: 11px; font-weight: 600;
+      margin: 3px 2px;
+    }
+    .arch-arrow {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 4px; padding: 0 16px; color: rgba(255,255,255,0.3);
+      font-size: 11px; font-weight: 500; text-align: center;
+    }
+    .arch-arrow .line {
+      width: 40px; height: 2px;
+      background: linear-gradient(90deg, rgba(113,75,103,0.5), rgba(113,75,103,0.5));
+      position: relative;
+    }
+    .arch-arrow .line::after {
+      content: '▶';
+      position: absolute; right: -8px; top: -7px;
+      color: var(--brand); font-size: 10px;
+    }
+
+    .stack-grid {
+      margin-top: 48px;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .stack-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 20px;
+      background: rgba(255,255,255,0.03);
+      display: flex; align-items: center; gap: 16px;
+    }
+    .stack-card .stack-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .stack-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .stack-card p { font-size: 12px; color: rgba(255,255,255,0.45); }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 4 — FEATURES
+    ───────────────────────────────────────────── */
+    #features { background: #080510; }
+    .features-grid {
+      margin-top: 56px;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px; overflow: hidden;
+    }
+    .feature-cell {
+      padding: 36px 32px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.05);
+      transition: all .3s;
+      position: relative; overflow: hidden;
+    }
+    .feature-cell:hover { background: rgba(113,75,103,0.1); }
+    .feature-cell .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 700;
+      margin-bottom: 16px; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .feature-cell h3 { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .feature-cell p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+    .feature-cell ul {
+      margin-top: 12px; padding-left: 0; list-style: none;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .feature-cell ul li {
+      font-size: 13px; color: rgba(255,255,255,0.55);
+      display: flex; align-items: flex-start; gap: 8px;
+    }
+    .feature-cell ul li::before {
+      content: '✓';
+      color: var(--emerald); font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 5 — SCREENS / MOCKUPS
+    ───────────────────────────────────────────── */
+    #screens { background: linear-gradient(180deg, #080510 0%, #0a060f 100%); }
+    .screen-tabs {
+      display: flex; gap: 8px; margin-bottom: 40px; flex-wrap: wrap;
+    }
+    .screen-tab {
+      padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; border: 1px solid transparent; transition: all .2s;
+      background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5);
+    }
+    .screen-tab.active {
+      background: rgba(113,75,103,0.25); border-color: rgba(113,75,103,0.5);
+      color: white;
+    }
+    .screen-frame {
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; overflow: hidden;
+      box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(113,75,103,0.2);
+      position: relative;
+    }
+    .screen-frame img {
+      width: 100%; display: block;
+    }
+    .screen-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 6 — AI + SMART FEATURES
+    ───────────────────────────────────────────── */
+    #ai-features { background: #080510; }
+    .ai-split {
+      margin-top: 56px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 56px; align-items: center;
+    }
+    .ai-code-block {
+      border: 1px solid rgba(113,75,103,0.3);
+      border-radius: 16px; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(113,75,103,0.15); padding: 12px 20px;
+      font-size: 13px; color: rgba(255,255,255,0.6);
+    }
+    .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .code-body {
+      background: #0d0818; padding: 24px;
+      font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.8;
+    }
+    .code-comment { color: #6b7280; }
+    .code-keyword { color: #a78bfa; }
+    .code-string { color: #34d399; }
+    .code-func { color: #60a5fa; }
+    .code-num { color: #f59e0b; }
+
+    .ai-features-list { display: flex; flex-direction: column; gap: 24px; }
+    .ai-feature {
+      display: flex; gap: 20px; align-items: flex-start;
+    }
+    .ai-feature-icon {
+      width: 48px; height: 48px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+    }
+    .ai-feature h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .ai-feature p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 7 — API
+    ───────────────────────────────────────────── */
+    #api { background: linear-gradient(180deg, #080510 0%, #0d0818 100%); }
+    .api-table {
+      margin-top: 48px; width: 100%;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; overflow: hidden;
+    }
+    .api-row {
+      display: grid; grid-template-columns: 80px 1fr 1fr;
+      padding: 16px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      align-items: center; transition: background .2s;
+    }
+    .api-row:hover { background: rgba(113,75,103,0.08); }
+    .api-row:last-child { border-bottom: none; }
+    .api-row.header {
+      background: rgba(255,255,255,0.04);
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: rgba(255,255,255,0.4);
+    }
+    .method {
+      display: inline-block; border-radius: 6px;
+      padding: 3px 10px; font-size: 11px; font-weight: 800;
+      font-family: 'Courier New', monospace; letter-spacing: 0.04em;
+    }
+    .method.get { background: rgba(16,185,129,0.15); color: #34d399; }
+    .method.post { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .method.put { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .method.ws { background: rgba(139,92,246,0.15); color: #a78bfa; }
+    .api-path { font-family: 'Courier New', monospace; font-size: 13px; color: rgba(255,255,255,0.8); }
+    .api-desc { font-size: 13px; color: rgba(255,255,255,0.45); }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 8 — FLOW DEMO
+    ───────────────────────────────────────────── */
+    #flow { background: #080510; }
+    .flow-steps {
+      margin-top: 56px;
+      position: relative;
+      display: grid; grid-template-columns: repeat(6, 1fr);
+      gap: 0;
+    }
+    .flow-steps::before {
+      content: '';
+      position: absolute; top: 52px; left: 5%; right: 5%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--brand), var(--brand-light), var(--brand), transparent);
+      z-index: 0;
+    }
+    .flow-step {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 0 12px; position: relative; z-index: 1;
+    }
+    .flow-num {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--slate800); border: 2px solid var(--brand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 16px;
+      box-shadow: 0 0 20px var(--brand-glow);
+    }
+    .flow-step h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .flow-step p { font-size: 12px; color: rgba(255,255,255,0.45); line-height: 1.5; }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 9 — OFFLINE + SYNC
+    ───────────────────────────────────────────── */
+    #resilience { background: linear-gradient(180deg, #080510 0%, #0d0818 100%); }
+    .resilience-grid {
+      margin-top: 56px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+    .resilience-card {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px; padding: 36px;
+      background: rgba(255,255,255,0.025);
+      transition: all .3s;
+    }
+    .resilience-card:hover { border-color: rgba(113,75,103,0.4); }
+    .res-icon { font-size: 40px; margin-bottom: 20px; }
+    .resilience-card h3 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+    .resilience-card p { font-size: 15px; color: rgba(255,255,255,0.5); line-height: 1.7; }
+
+    /* ─────────────────────────────────────────────
+       SLIDE 10 — TEAM + THANK YOU
+    ───────────────────────────────────────────── */
+    #team { background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(113,75,103,0.2) 0%, transparent 70%), #080510; }
+    .team-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(48px, 6vw, 80px);
+      font-weight: 800; line-height: 1.1; text-align: center;
+      letter-spacing: -2px;
+    }
+    .team-subtitle { font-size: 18px; color: rgba(255,255,255,0.5); text-align: center; margin-top: 16px; }
+
+    .final-card {
+      margin-top: 56px;
+      border: 1px solid rgba(113,75,103,0.3);
+      border-radius: 24px; padding: 48px;
+      background: rgba(113,75,103,0.08);
+      text-align: center;
+      box-shadow: 0 0 80px rgba(113,75,103,0.15);
+    }
+    .final-badges {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+      margin-top: 32px;
+    }
+    .final-badge {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px; padding: 8px 20px;
+      font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.7);
+    }
+
+    /* ── SCROLL PROGRESS ── */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 3px;
+      background: linear-gradient(90deg, var(--brand), var(--brand-light));
+      z-index: 200; transition: width .1s;
+    }
+
+    /* ── BACK TO TOP ── */
+    #back-top {
+      position: fixed; bottom: 32px; right: 32px; z-index: 100;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--brand); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; box-shadow: 0 4px 20px rgba(113,75,103,0.5);
+      transition: all .3s; opacity: 0; pointer-events: none;
+    }
+    #back-top.visible { opacity: 1; pointer-events: all; }
+    #back-top:hover { transform: translateY(-3px); }
+
+    /* ── HORIZONTAL DIVIDER ── */
+    .divider {
+      border: none; border-top: 1px solid rgba(255,255,255,0.06);
+      margin: 0;
+    }
+
+    /* ── HIGHLIGHT ── */
+    .hl { color: var(--brand-light); }
+    .hl-emerald { color: var(--emerald); }
+    .hl-amber { color: var(--amber); }
+    .hl-sky { color: var(--sky); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 12px 20px; }
+      .nav-links { display: none; }
+      .slide { padding: 80px 20px 48px; }
+      .hero-title { font-size: 42px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .arch-diagram { grid-template-columns: 1fr; }
+      .arch-arrow { display: none; }
+      .screen-panels { grid-template-columns: 1fr; }
+      .ai-split { grid-template-columns: 1fr; }
+      .resilience-grid { grid-template-columns: 1fr; }
+      .flow-steps { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+      .flow-steps::before { display: none; }
+      .api-row { grid-template-columns: 70px 1fr; }
+      .api-row .api-desc { display: none; }
+    }
+
+    /* ── COUNTER ANIMATION ── */
+    @keyframes countUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .stat-num { animation: countUp .6s ease forwards; }
+
+    /* ── FADE IN ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeInUp .7s ease forwards; }
+    .fade-in-2 { animation: fadeInUp .7s .15s ease both; }
+    .fade-in-3 { animation: fadeInUp .7s .3s ease both; }
+    .fade-in-4 { animation: fadeInUp .7s .45s ease both; }
+
+    /* ── GLOWING BORDER ANIMATION ── */
+    @keyframes borderGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(113,75,103,0.3); }
+      50% { box-shadow: 0 0 50px rgba(113,75,103,0.6); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Scroll Progress -->
+<div id="progress-bar"></div>
+
+<!-- Navigation -->
+<nav>
+  <div class="nav-logo">
+    <div class="dot"></div>
+    BrewMatic <span style="color:rgba(255,255,255,0.35);font-weight:400;margin-left:4px">POS</span>
+  </div>
+  <div class="nav-links">
+    <a href="#hero">Overview</a>
+    <a href="#problem">Vision</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#features">Features</a>
+    <a href="#screens">Screens</a>
+    <a href="#ai-features">AI</a>
+    <a href="#api">API</a>
+    <a href="#team">Team</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 1 · HERO
+══════════════════════════════════════════════ -->
+<section id="hero" class="slide bg-grid">
+  <div class="glow-orb" style="width:600px;height:600px;top:-200px;left:-100px;background:radial-gradient(circle, rgba(113,75,103,0.25) 0%, transparent 70%);"></div>
+  <div class="glow-orb" style="width:400px;height:400px;bottom:-100px;right:-80px;background:radial-gradient(circle, rgba(113,75,103,0.15) 0%, transparent 70%);"></div>
+
+  <div class="slide-inner">
+    <div class="hero-tag fade-in">
+      ☕ &nbsp;Odoo Cafe POS Hackathon &nbsp;·&nbsp; 2026
+    </div>
+
+    <h1 class="hero-title fade-in-2">
+      The Smart Café POS<br/>
+      Built for the <span class="accent">Modern Age</span>
+    </h1>
+
+    <p class="hero-subtitle fade-in-3">
+      <strong>BrewMatic</strong> is a complete, production-ready Point-of-Sale system covering
+      Admin Backend, POS Terminal, and Kitchen Display — all connected live over WebSocket,
+      running fully offline when needed.
+    </p>
+
+    <div class="hero-cta fade-in-4">
+      <a href="#features" class="btn-primary">☕ &nbsp;Explore Features</a>
+      <a href="#screens" class="btn-outline">🖥️ &nbsp;See Live Screens</a>
+    </div>
+
+    <div class="hero-stats fade-in-4">
+      <div class="stat-item">
+        <div class="stat-num">36<span>+</span></div>
+        <div class="stat-label">Menu Products seeded</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">6</div>
+        <div class="stat-label">Food Categories</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">Live Screens</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">10<span>+</span></div>
+        <div class="stat-label">REST API Endpoints</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">External Cloud Dependencies</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 2 · PROBLEM & VISION
+══════════════════════════════════════════════ -->
+<section id="problem" class="slide">
+  <div class="slide-inner">
+    <div class="slide-label">🎯 Problem &amp; Vision</div>
+    <h2 class="section-title">
+      Cafés deserve software as<br/>
+      <span class="hl">premium as their coffee</span>
+    </h2>
+    <p class="section-subtitle">
+      Most POS tools are bloated, slow, and cloud-locked.
+      BrewMatic proves you can have enterprise-grade intelligence with zero cloud lock-in.
+    </p>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(244,63,94,0.12);color:#f43f5e;">🌐</div>
+        <h3>Cloud Downtime = Lost Sales</h3>
+        <p>When the internet drops, many POS systems freeze entirely. BrewMatic transparently falls back to localStorage so the show never stops.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(245,158,11,0.12);color:#f59e0b;">🖨️</div>
+        <h3>Disconnected Systems</h3>
+        <p>Orders hand-written on paper, kitchen staff squinting at screens, admin guessing from receipts. BrewMatic unifies everything in real-time.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(113,75,103,0.15);color:#b47ea3;">🤖</div>
+        <h3>No Intelligent Upselling</h3>
+        <p>No suggestions, no smart promotions, no automated discounts. BrewMatic ships a live co-occurrence AI engine and automated promo rules — out of the box.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-icon" style="background:rgba(16,185,129,0.12);color:#10b981;">📊</div>
+        <h3>Insight Blind Spots</h3>
+        <p>Who is your best-selling product at 6 PM on weekdays? BrewMatic's filterable dashboard answers these in real-time with charts you can export.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 3 · ARCHITECTURE
+══════════════════════════════════════════════ -->
+<section id="architecture" class="slide">
+  <div class="glow-orb" style="width:500px;height:500px;top:50%;left:50%;transform:translate(-50%,-50%);background:radial-gradient(circle, rgba(113,75,103,0.12) 0%, transparent 70%);"></div>
+  <div class="slide-inner">
+    <div class="slide-label">🏗️ System Architecture</div>
+    <h2 class="section-title">
+      Three screens. <span class="hl">One source</span><br/>
+      of truth. Zero drift.
+    </h2>
+
+    <div class="arch-diagram" style="margin-top:56px;">
+      <div class="arch-box">
+        <div class="arch-box-icon">🖥️</div>
+        <h3>Admin Backend</h3>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:8px 0 12px;">Dashboard, config, reports</p>
+        <span class="tech-tag" style="background:rgba(14,165,233,0.15);color:#38bdf8;">React 18</span>
+        <span class="tech-tag" style="background:rgba(113,75,103,0.2);color:#c084fc;">Recharts</span>
+        <span class="tech-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">QR Code</span>
+      </div>
+      <div class="arch-arrow">
+        <div class="line"></div>
+        <small style="margin-top:4px;">REST + WS</small>
+      </div>
+      <div class="arch-box" style="border-color:rgba(113,75,103,0.4);background:rgba(113,75,103,0.08);">
+        <div class="arch-box-icon">⚡</div>
+        <h3 style="color:var(--brand-light);">Node.js Backend</h3>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:8px 0 12px;">Express · SQLite · WebSocket</p>
+        <span class="tech-tag" style="background:rgba(16,185,129,0.15);color:#34d399;">SQLite</span>
+        <span class="tech-tag" style="background:rgba(139,92,246,0.15);color:#a78bfa;">ws</span>
+        <span class="tech-tag" style="background:rgba(59,130,246,0.15);color:#60a5fa;">Express</span>
+      </div>
+      <div class="arch-arrow">
+        <div class="line" style="transform:scaleX(-1)"></div>
+        <small style="margin-top:4px;">Live Sync</small>
+      </div>
+      <div class="arch-box">
+        <div class="arch-box-icon">☕</div>
+        <h3>POS + KDS</h3>
+        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:8px 0 12px;">Cashier terminal · Kitchen display</p>
+        <span class="tech-tag" style="background:rgba(14,165,233,0.15);color:#38bdf8;">React</span>
+        <span class="tech-tag" style="background:rgba(245,158,11,0.15);color:#fbbf24;">Vite</span>
+        <span class="tech-tag" style="background:rgba(16,185,129,0.15);color:#34d399;">Offline-first</span>
+      </div>
+    </div>
+
+    <div class="stack-grid" style="margin-top:48px;">
+      <div class="stack-card">
+        <div class="stack-icon" style="background:rgba(14,165,233,0.12);font-size:22px;">⚛️</div>
+        <div>
+          <h4>React 18 + Vite</h4>
+          <p>Lightning-fast frontend with HMR dev experience</p>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon" style="background:rgba(16,185,129,0.12);">🗄️</div>
+        <div>
+          <h4>SQLite (better-sqlite3)</h4>
+          <p>Relational DB, zero setup, fully offline</p>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon" style="background:rgba(139,92,246,0.12);">🔌</div>
+        <div>
+          <h4>WebSocket Live Sync</h4>
+          <p>State broadcasts to all devices instantly</p>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon" style="background:rgba(245,158,11,0.12);">📍</div>
+        <div>
+          <h4>React Router v6</h4>
+          <p>Clean SPA routing, nested layouts</p>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon" style="background:rgba(113,75,103,0.15);">📊</div>
+        <div>
+          <h4>Recharts</h4>
+          <p>Area + Pie charts for the reports dashboard</p>
+        </div>
+      </div>
+      <div class="stack-card">
+        <div class="stack-icon" style="background:rgba(244,63,94,0.12);">📦</div>
+        <div>
+          <h4>Single Source of Truth</h4>
+          <p>seed.js shared by frontend &amp; backend Node</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 4 · FEATURES
+══════════════════════════════════════════════ -->
+<section id="features" class="slide bg-grid">
+  <div class="slide-inner">
+    <div class="slide-label">🚀 Full Feature Set</div>
+    <h2 class="section-title">
+      Everything the brief asked for.<br/>
+      <span class="hl">And then some.</span>
+    </h2>
+
+    <div class="features-grid" style="margin-top:48px;">
+
+      <!-- Admin Backend -->
+      <div class="feature-cell" style="border-top-left-radius:21px;">
+        <div class="badge" style="background:rgba(113,75,103,0.2);color:var(--brand-light);">🛡️ Admin Backend</div>
+        <h3>Full Configuration Center</h3>
+        <ul>
+          <li>Product CRUD with on-the-fly category creation</li>
+          <li>Category management with color propagation to POS</li>
+          <li>Payment method toggles (Cash, Card, UPI QR)</li>
+          <li>Live UPI QR preview from saved UPI ID</li>
+          <li>Coupon codes + automated promotions engine</li>
+          <li>Floor plan + table management</li>
+          <li>User / Employee management with roles &amp; archiving</li>
+        </ul>
+      </div>
+
+      <!-- POS Terminal -->
+      <div class="feature-cell">
+        <div class="badge" style="background:rgba(14,165,233,0.15);color:#38bdf8;">☕ POS Terminal</div>
+        <h3>Cashier-Facing Terminal</h3>
+        <ul>
+          <li>Floor pop-up on login — select table to start</li>
+          <li>Product cards with category color + search + filter</li>
+          <li>Cart with live totals (subtotal / tax / discounts)</li>
+          <li>Coupon popup + automated promo auto-apply</li>
+          <li>Customer assignment (search or create inline)</li>
+          <li>Send to Kitchen with real-time flash feedback</li>
+          <li>Cash / Card / UPI payment with change calculator</li>
+          <li>Printable receipt &amp; email simulation</li>
+        </ul>
+      </div>
+
+      <!-- KDS -->
+      <div class="feature-cell" style="border-top-right-radius:21px;">
+        <div class="badge" style="background:rgba(245,158,11,0.15);color:#fbbf24;">🍳 Kitchen Display</div>
+        <h3>Real-Time KDS Screen</h3>
+        <ul>
+          <li>Dark-themed display for kitchen environments</li>
+          <li>Three stage columns: To Cook → Preparing → Completed</li>
+          <li>Tap ticket to advance stage; tap item to strike through</li>
+          <li>Search &amp; category filter across all tickets</li>
+          <li>Live WebSocket push — no refresh needed</li>
+          <li>Relative timestamps ("3m ago", "just now")</li>
+          <li>Only KDS-flagged products appear</li>
+        </ul>
+      </div>
+
+      <!-- Reports -->
+      <div class="feature-cell" style="border-bottom-left-radius:21px;">
+        <div class="badge" style="background:rgba(16,185,129,0.15);color:#34d399;">📈 Analytics</div>
+        <h3>Reports Dashboard</h3>
+        <ul>
+          <li>Filter by period: Today / Week / Month / All-time</li>
+          <li>Filter by employee or product</li>
+          <li>Revenue, order count, average order value metrics</li>
+          <li>Sales Trend area chart (Recharts)</li>
+          <li>Top Categories donut pie chart</li>
+          <li>Top Orders, Top Products, Category Revenue tables</li>
+          <li>Export to PDF (print) and XLS download</li>
+        </ul>
+      </div>
+
+      <!-- Smart AI -->
+      <div class="feature-cell">
+        <div class="badge" style="background:rgba(139,92,246,0.15);color:#c084fc;">🤖 Smart AI</div>
+        <h3>Product Suggestions Engine</h3>
+        <ul>
+          <li>Live co-occurrence model built from paid orders</li>
+          <li>Suggests up to 3 add-ons per cart in real-time</li>
+          <li>Cold-start fallback: top sellers in same category</li>
+          <li>Debounced fetches for smooth UX (250ms)</li>
+          <li>Suggestions hidden if already in cart</li>
+          <li>Sparkle icon UI — one-tap add to cart</li>
+        </ul>
+      </div>
+
+      <!-- Offline + DevOps -->
+      <div class="feature-cell" style="border-bottom-right-radius:21px;">
+        <div class="badge" style="background:rgba(244,63,94,0.15);color:#fb7185;">🔒 Reliability</div>
+        <h3>Resilience &amp; Security</h3>
+        <ul>
+          <li>Full offline fallback to localStorage</li>
+          <li>WebSocket reconnect — state syncs on reconnect</li>
+          <li>All secrets in .env — never in source code</li>
+          <li>.env is gitignored — .env.example as template</li>
+          <li>One-command setup: <code>npm run setup</code></li>
+          <li>One-command run: <code>npm run dev:all</code></li>
+          <li>Demo data reset anytime from the sidebar</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 5 · SCREENS
+══════════════════════════════════════════════ -->
+<section id="screens" class="slide">
+  <div class="slide-inner">
+    <div class="slide-label">🖥️ Live Screens</div>
+    <h2 class="section-title">
+      Three screens. <span class="hl">One seamless</span><br/>
+      experience.
+    </h2>
+    <p class="section-subtitle">
+      Each screen is purpose-built — admin owns the backend, cashier owns the floor,
+      kitchen owns the pass. All three stay in sync via WebSocket.
+    </p>
+
+    <div class="screen-panels" style="margin-top:48px;">
+      <div>
+        <div style="margin-bottom:16px;">
+          <div class="slide-label" style="margin-bottom:8px;">POS Terminal (Cashier)</div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.45);">Product grid · Cart · Payment · Receipt</p>
+        </div>
+        <div class="screen-frame">
+          <div style="background:linear-gradient(135deg,#1a0a15 0%,#2d1533 100%);padding:24px;min-height:320px;display:flex;align-items:center;justify-content:center;">
+            <div style="width:100%;max-width:600px;">
+              <!-- Mock POS UI -->
+              <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(113,75,103,0.3);border-radius:16px;overflow:hidden;">
+                <div style="background:rgba(255,255,255,0.06);padding:12px 16px;display:flex;gap:12px;align-items:center;">
+                  <div style="width:28px;height:28px;border-radius:8px;background:#714B67;display:flex;align-items:center;justify-content:center;font-size:14px;">☕</div>
+                  <div style="display:flex;gap:6px;">
+                    <span style="background:rgba(113,75,103,0.3);color:#e0a5cf;border-radius:6px;padding:5px 12px;font-size:12px;font-weight:600;">POS Order</span>
+                    <span style="color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 12px;font-size:12px;">Orders</span>
+                    <span style="color:rgba(255,255,255,0.4);border-radius:6px;padding:5px 12px;font-size:12px;">Customers</span>
+                  </div>
+                  <div style="margin-left:auto;background:rgba(255,255,255,0.08);border-radius:6px;padding:5px 10px;font-size:11px;color:rgba(255,255,255,0.5);">🪑 Table 3</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 200px;">
+                  <div style="padding:16px;">
+                    <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:hidden;">
+                      <span style="background:#714B67;color:white;border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;">All</span>
+                      <span style="background:rgba(113,75,103,0.2);color:#c084fc;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:600;">☕ Coffee</span>
+                      <span style="background:rgba(46,125,111,0.2);color:#34d399;border-radius:999px;padding:4px 10px;font-size:11px;font-weight:600;">🍵 Tea</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+                      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;padding:0;">
+                        <div style="height:4px;background:#714B67;"></div>
+                        <div style="padding:10px;">
+                          <div style="font-size:12px;font-weight:600;margin-bottom:2px;">Espresso</div>
+                          <div style="font-size:10px;color:rgba(255,255,255,0.4);">per piece</div>
+                          <div style="margin-top:6px;font-size:13px;font-weight:800;color:#b47ea3;">₹120</div>
+                        </div>
+                      </div>
+                      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(113,75,103,0.3);border-radius:10px;overflow:hidden;">
+                        <div style="height:4px;background:#714B67;"></div>
+                        <div style="padding:10px;">
+                          <div style="font-size:12px;font-weight:600;margin-bottom:2px;">Cappuccino</div>
+                          <div style="font-size:10px;color:rgba(255,255,255,0.4);">per piece</div>
+                          <div style="margin-top:6px;font-size:13px;font-weight:800;color:#b47ea3;">₹180</div>
+                        </div>
+                      </div>
+                      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;overflow:hidden;">
+                        <div style="height:4px;background:#E07B05;"></div>
+                        <div style="padding:10px;">
+                          <div style="font-size:12px;font-weight:600;margin-bottom:2px;">Croissant</div>
+                          <div style="font-size:10px;color:rgba(255,255,255,0.4);">per piece</div>
+                          <div style="margin-top:6px;font-size:13px;font-weight:800;color:#fbbf24;">₹150</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="border-left:1px solid rgba(255,255,255,0.08);padding:16px;background:rgba(255,255,255,0.02);">
+                    <div style="font-size:12px;font-weight:600;margin-bottom:10px;color:rgba(255,255,255,0.5);">Cart · 3 items</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                      <div style="font-size:11px;display:flex;justify-content:space-between;"><span>Cappuccino ×2</span><span style="color:#b47ea3;font-weight:600;">₹360</span></div>
+                      <div style="font-size:11px;display:flex;justify-content:space-between;"><span>Croissant ×1</span><span style="color:#b47ea3;font-weight:600;">₹150</span></div>
+                    </div>
+                    <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);">
+                      <div style="font-size:11px;display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:rgba(255,255,255,0.4);">Tax</span><span>₹28</span></div>
+                      <div style="font-size:14px;font-weight:800;display:flex;justify-content:space-between;margin-top:4px;"><span>Total</span><span style="color:#b47ea3;">₹538</span></div>
+                    </div>
+                    <div style="margin-top:12px;background:#714B67;border-radius:8px;padding:8px;text-align:center;font-size:12px;font-weight:700;">Pay ₹538</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="margin-bottom:16px;">
+          <div class="slide-label" style="margin-bottom:8px;">Kitchen Display System</div>
+          <p style="font-size:13px;color:rgba(255,255,255,0.45);">Real-time 3-stage ticket board</p>
+        </div>
+        <div class="screen-frame">
+          <div style="background:#0f172a;padding:20px;min-height:320px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.08);">
+              <div style="width:36px;height:36px;border-radius:10px;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:18px;">🍳</div>
+              <div>
+                <div style="font-weight:700;font-size:14px;">Kitchen Display</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.4);">Live tickets · updates in real time</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <!-- To Cook -->
+              <div style="border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.04);">
+                <div style="background:#0ea5e9;padding:8px 12px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;">
+                  <span>⏱ To Cook</span><span style="background:rgba(0,0,0,0.2);border-radius:999px;padding:2px 8px;">2</span>
+                </div>
+                <div style="padding:8px;display:flex;flex-direction:column;gap:8px;">
+                  <div style="border:1px solid rgba(14,165,233,0.3);border-radius:8px;padding:10px;background:rgba(14,165,233,0.07);">
+                    <div style="font-size:11px;font-weight:800;margin-bottom:6px;display:flex;justify-content:space-between;"><span>#ORD-1008</span><span style="color:rgba(255,255,255,0.4);">just now</span></div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.7);">2 × Cappuccino</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.7);">1 × Croissant</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Preparing -->
+              <div style="border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.04);">
+                <div style="background:#f59e0b;padding:8px 12px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;">
+                  <span>🔥 Preparing</span><span style="background:rgba(0,0,0,0.2);border-radius:999px;padding:2px 8px;">1</span>
+                </div>
+                <div style="padding:8px;">
+                  <div style="border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:10px;background:rgba(245,158,11,0.07);">
+                    <div style="font-size:11px;font-weight:800;margin-bottom:6px;display:flex;justify-content:space-between;"><span>#ORD-1007</span><span style="color:rgba(255,255,255,0.4);">3m ago</span></div>
+                    <div style="font-size:11px;color:#34d399;text-decoration:line-through;">1 × Espresso</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.7);">1 × Brownie</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Completed -->
+              <div style="border-radius:12px;overflow:hidden;background:rgba(255,255,255,0.04);">
+                <div style="background:#10b981;padding:8px 12px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;">
+                  <span>✅ Completed</span><span style="background:rgba(0,0,0,0.2);border-radius:999px;padding:2px 8px;">3</span>
+                </div>
+                <div style="padding:8px;">
+                  <div style="border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px;background:rgba(16,185,129,0.07);">
+                    <div style="font-size:11px;font-weight:800;margin-bottom:6px;display:flex;justify-content:space-between;"><span>#ORD-1006</span><span style="color:rgba(255,255,255,0.4);">8m ago</span></div>
+                    <div style="font-size:11px;color:#34d399;text-decoration:line-through;">2 × Cold Brew</div>
+                    <div style="font-size:11px;color:#34d399;text-decoration:line-through;">1 × Cheesecake</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard mockup -->
+    <div style="margin-top:32px;">
+      <div class="slide-label" style="margin-bottom:16px;">Admin Backend — Sales Dashboard</div>
+      <div class="screen-frame">
+        <div style="background:#f8fafc;display:grid;grid-template-columns:240px 1fr;min-height:300px;">
+          <!-- Sidebar -->
+          <div style="background:#714B67;padding:16px;display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;gap:8px;padding:12px 8px;margin-bottom:8px;">
+              <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;">☕</div>
+              <div style="font-weight:800;color:white;font-size:14px;">BrewMatic</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:9px 12px;font-size:12px;color:white;font-weight:600;">📊 Dashboard</div>
+            <div style="border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.65);">📦 Products</div>
+            <div style="border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.65);">🏷 Categories</div>
+            <div style="border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.65);">💳 Payment Method</div>
+            <div style="border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.65);">🎫 Coupons</div>
+            <div style="border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.65);">🪑 Tables</div>
+            <div style="border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,0.65);">👥 Users</div>
+          </div>
+          <!-- Content -->
+          <div style="padding:20px;background:#f8fafc;">
+            <div style="font-size:16px;font-weight:800;color:#1e293b;margin-bottom:16px;">Sales Dashboard</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+              <div style="background:white;border-radius:12px;padding:16px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:10px;background:#714B67;display:flex;align-items:center;justify-content:center;font-size:18px;">🛍</div>
+                <div><div style="font-size:11px;color:#94a3b8;">Total Orders</div><div style="font-size:22px;font-weight:800;color:#1e293b;">247</div></div>
+              </div>
+              <div style="background:white;border-radius:12px;padding:16px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:10px;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:18px;">₹</div>
+                <div><div style="font-size:11px;color:#94a3b8;">Revenue</div><div style="font-size:22px;font-weight:800;color:#1e293b;">₹48,320</div></div>
+              </div>
+              <div style="background:white;border-radius:12px;padding:16px;border:1px solid #e2e8f0;display:flex;align-items:center;gap:12px;">
+                <div style="width:40px;height:40px;border-radius:10px;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:18px;">📋</div>
+                <div><div style="font-size:11px;color:#94a3b8;">Avg Order</div><div style="font-size:22px;font-weight:800;color:#1e293b;">₹196</div></div>
+              </div>
+            </div>
+            <!-- Fake chart -->
+            <div style="background:white;border-radius:12px;padding:16px;border:1px solid #e2e8f0;">
+              <div style="font-size:12px;font-weight:700;color:#1e293b;margin-bottom:12px;">📈 Sales Trend</div>
+              <div style="height:60px;display:flex;align-items:flex-end;gap:4px;">
+                <div style="flex:1;background:linear-gradient(180deg,rgba(113,75,103,0.6),rgba(113,75,103,0.1));border-radius:4px 4px 0 0;height:40%;"></div>
+                <div style="flex:1;background:linear-gradient(180deg,rgba(113,75,103,0.6),rgba(113,75,103,0.1));border-radius:4px 4px 0 0;height:60%;"></div>
+                <div style="flex:1;background:linear-gradient(180deg,rgba(113,75,103,0.6),rgba(113,75,103,0.1));border-radius:4px 4px 0 0;height:50%;"></div>
+                <div style="flex:1;background:linear-gradient(180deg,rgba(113,75,103,0.6),rgba(113,75,103,0.1));border-radius:4px 4px 0 0;height:80%;"></div>
+                <div style="flex:1;background:linear-gradient(180deg,rgba(113,75,103,0.6),rgba(113,75,103,0.1));border-radius:4px 4px 0 0;height:65%;"></div>
+                <div style="flex:1;background:linear-gradient(180deg,rgba(113,75,103,0.6),rgba(113,75,103,0.1));border-radius:4px 4px 0 0;height:90%;"></div>
+                <div style="flex:1;background:linear-gradient(180deg,rgba(113,75,103,0.8),rgba(113,75,103,0.2));border-radius:4px 4px 0 0;height:100%;box-shadow:0 -2px 8px rgba(113,75,103,0.4);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 6 · AI ENGINE
+══════════════════════════════════════════════ -->
+<section id="ai-features" class="slide">
+  <div class="slide-inner">
+    <div class="slide-label">🤖 Smart AI Engine</div>
+    <h2 class="section-title">
+      Live product suggestions,<br/>
+      <span class="hl">powered by your own data</span>
+    </h2>
+
+    <div class="ai-split">
+      <div class="ai-code-block">
+        <div class="code-header">
+          <div class="code-dot" style="background:#ff5f57;"></div>
+          <div class="code-dot" style="background:#fbbf24;"></div>
+          <div class="code-dot" style="background:#34d399;"></div>
+          <span style="margin-left:8px;">backend/routes/ai.js</span>
+        </div>
+        <div class="code-body">
+<span class="code-comment">// Co-occurrence recommender from paid orders</span><br/>
+<span class="code-keyword">router</span>.<span class="code-func">get</span>(<span class="code-string">'/suggestions'</span>, (req, res) =&gt; {<br/>
+&nbsp;&nbsp;<span class="code-keyword">const</span> cart = req.query.cart.split(<span class="code-string">','</span>)<br/><br/>
+&nbsp;&nbsp;<span class="code-comment">// Build co-occurrence from DB</span><br/>
+&nbsp;&nbsp;<span class="code-keyword">const</span> rows = db.prepare(`<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">SELECT</span> oi.orderId, oi.productId<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">FROM</span> order_items oi<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">JOIN</span> orders o <span class="code-keyword">ON</span> o.id=oi.orderId<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">WHERE</span> o.status=<span class="code-string">'paid'</span>`).all()<br/><br/>
+&nbsp;&nbsp;<span class="code-comment">// Score &amp; rank by co-occurrence</span><br/>
+&nbsp;&nbsp;<span class="code-keyword">const</span> scored = <span class="code-func">rankByCoOccurrence</span>(rows, cart)<br/><br/>
+&nbsp;&nbsp;<span class="code-comment">// Cold-start: top sellers in same category</span><br/>
+&nbsp;&nbsp;<span class="code-keyword">if</span> (scored.length &lt; <span class="code-num">3</span>) <span class="code-func">fallbackTopSellers</span>(cart)<br/><br/>
+&nbsp;&nbsp;res.<span class="code-func">json</span>(ranked.slice(<span class="code-num">0</span>, <span class="code-num">3</span>))<br/>
+})<br/>
+        </div>
+      </div>
+
+      <div class="ai-features-list">
+        <div class="ai-feature">
+          <div class="ai-feature-icon" style="background:rgba(139,92,246,0.15);color:#a78bfa;">✨</div>
+          <div>
+            <h3>Live Co-Occurrence Model</h3>
+            <p>Every time an order is paid, the model grows smarter. Products frequently bought together get ranked higher — no ML library needed, pure SQL.</p>
+          </div>
+        </div>
+        <div class="ai-feature">
+          <div class="ai-feature-icon" style="background:rgba(245,158,11,0.15);color:#fbbf24;">🔥</div>
+          <div>
+            <h3>Cold-Start Fallback</h3>
+            <p>For new cafés with no history, the engine falls back to top-selling products in the same category — always showing something relevant.</p>
+          </div>
+        </div>
+        <div class="ai-feature">
+          <div class="ai-feature-icon" style="background:rgba(16,185,129,0.15);color:#34d399;">⚡</div>
+          <div>
+            <h3>Zero Latency UX</h3>
+            <p>Suggestions are fetched with a 250ms debounce as the cart changes. Results appear inline in the cart — one tap to add. Items already in cart are filtered out.</p>
+          </div>
+        </div>
+        <div class="ai-feature">
+          <div class="ai-feature-icon" style="background:rgba(113,75,103,0.2);color:#c084fc;">🎯</div>
+          <div>
+            <h3>Automated Promotions</h3>
+            <p>Beyond suggestions — rule-based promos fire automatically: "Coffee Lovers" (3× Cappuccino → 15% off) and "Big Order Bonus" (₹800+ → ₹100 flat off) apply without cashier input.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 7 · API
+══════════════════════════════════════════════ -->
+<section id="api" class="slide">
+  <div class="slide-inner">
+    <div class="slide-label">🔌 REST API</div>
+    <h2 class="section-title">
+      Real, queryable API.<br/>
+      <span class="hl">Not just a toy.</span>
+    </h2>
+    <p class="section-subtitle">
+      Every endpoint is queryable independently of the frontend — suitable for integrations, testing, and third-party dashboards.
+    </p>
+
+    <div class="api-table">
+      <div class="api-row header">
+        <div>Method</div>
+        <div>Endpoint</div>
+        <div>Purpose</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method get">GET</span></div>
+        <div class="api-path">/api/state</div>
+        <div class="api-desc">Full app state snapshot (frontend store hydration)</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method put">PUT</span></div>
+        <div class="api-path">/api/state</div>
+        <div class="api-desc">Persist state → SQLite + broadcast to all devices</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method post">POST</span></div>
+        <div class="api-path">/api/auth/login</div>
+        <div class="api-desc">Authenticate user against users table</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method get">GET</span></div>
+        <div class="api-path">/api/products</div>
+        <div class="api-desc">Full menu catalogue</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method get">GET</span></div>
+        <div class="api-path">/api/orders</div>
+        <div class="api-desc">Order history with ?status= and ?search= filters</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method get">GET</span></div>
+        <div class="api-path">/api/kds/tickets</div>
+        <div class="api-desc">Kitchen tickets in all stages</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method get">GET</span></div>
+        <div class="api-path">/api/reports/summary</div>
+        <div class="api-desc">Revenue, order count, AOV metrics</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method get">GET</span></div>
+        <div class="api-path">/api/ai/suggestions?cart=…</div>
+        <div class="api-desc">Co-occurrence product recommendations</div>
+      </div>
+      <div class="api-row">
+        <div><span class="method get">GET</span></div>
+        <div class="api-path">/api/health</div>
+        <div class="api-desc">Backend health check with timestamp</div>
+      </div>
+      <div class="api-row" style="background:rgba(139,92,246,0.06);">
+        <div><span class="method ws">WS</span></div>
+        <div class="api-path">/ws</div>
+        <div class="api-desc">Live state sync via WebSocket across all devices</div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px;background:rgba(255,255,255,0.03);">
+        <div style="font-size:24px;margin-bottom:12px;">🗄️</div>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">SQLite Relational Schema</h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;">Tables: users, products, categories, orders, order_items, kitchen_tickets, floors, payment_methods, coupons, promotions. All normalized, all queryable.</p>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:24px;background:rgba(255,255,255,0.03);">
+        <div style="font-size:24px;margin-bottom:12px;">🔄</div>
+        <h3 style="font-size:16px;font-weight:700;margin-bottom:8px;">WebSocket Broadcast</h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;">Every PUT /api/state broadcasts a <code style="color:#a78bfa;">{type:'state'}</code> event to all open WebSocket clients. The frontend re-fetches and updates instantly — no polling.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 8 · DEMO FLOW
+══════════════════════════════════════════════ -->
+<section id="flow" class="slide bg-grid">
+  <div class="slide-inner">
+    <div class="slide-label">🎬 Demo Flow</div>
+    <h2 class="section-title">
+      End-to-end in <span class="hl">6 steps</span>
+    </h2>
+    <p class="section-subtitle">Follow this path with the judges to demonstrate every major feature.</p>
+
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">🪑</div>
+        <h4>Pick Table</h4>
+        <p>Log in as Cashier — Floor pop-up appears. Select Table 3 to start an order.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">🛒</div>
+        <h4>Build Order</h4>
+        <p>Add 3× Cappuccino — watch the "Coffee Lovers" promo auto-apply. Add Croissant &amp; customer.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">🍳</div>
+        <h4>Send Kitchen</h4>
+        <p>Tap "Kitchen" → green flash. Open /kitchen in a second tab — ticket appears live.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">✅</div>
+        <h4>Advance KDS</h4>
+        <p>Tap ticket: To Cook → Preparing → Completed. Tick individual items as they're done.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">💳</div>
+        <h4>Pay &amp; Receipt</h4>
+        <p>Pay with UPI QR (scannable), Cash (change calc), or Card (txn ref). Print receipt.</p>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">📊</div>
+        <h4>Check Reports</h4>
+        <p>Log in as Admin → Dashboard reflects the sale instantly. Export XLS or print PDF.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 9 · RESILIENCE
+══════════════════════════════════════════════ -->
+<section id="resilience" class="slide">
+  <div class="slide-inner">
+    <div class="slide-label">🔒 Built to Last</div>
+    <h2 class="section-title">
+      Offline-first.<br/>
+      <span class="hl">Live-sync second.</span>
+    </h2>
+
+    <div class="resilience-grid">
+      <div class="resilience-card">
+        <div class="res-icon">📴</div>
+        <h3>Offline Fallback</h3>
+        <p>If the backend goes down during a demo, the frontend store transparently falls back to <strong>localStorage</strong>. Orders keep flowing, receipts still print. When the backend comes back up, state is reconciled.</p>
+      </div>
+      <div class="resilience-card" style="border-color:rgba(139,92,246,0.2);">
+        <div class="res-icon">⚡</div>
+        <h3>WebSocket Live Sync</h3>
+        <p>Every state change (new order, kitchen advance, payment) is broadcast over WebSocket to <strong>every connected device</strong>. The Kitchen Display updates the moment the cashier taps "Send to Kitchen" — no refresh, zero delay.</p>
+      </div>
+      <div class="resilience-card" style="border-color:rgba(16,185,129,0.2);">
+        <div class="res-icon">🔑</div>
+        <h3>Secrets-Safe Architecture</h3>
+        <p>Passwords, UPI ID — nothing is hardcoded. All sensitive values live in <code style="color:#a78bfa;">.env</code> which is gitignored. The <code style="color:#a78bfa;">.env.example</code> template ships safely in the repo.</p>
+      </div>
+      <div class="resilience-card" style="border-color:rgba(245,158,11,0.2);">
+        <div class="res-icon">🌱</div>
+        <h3>Single Source of Truth</h3>
+        <p><code style="color:#a78bfa;">src/store/seed.js</code> is the one module that defines all demo data. Both the <strong>Vite frontend</strong> and the <strong>Node backend seeder</strong> import it directly — zero duplication, zero drift.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ══════════════════════════════════════════════
+     SLIDE 10 · TEAM
+══════════════════════════════════════════════ -->
+<section id="team" class="slide">
+  <div class="glow-orb" style="width:700px;height:700px;bottom:-200px;left:50%;transform:translateX(-50%);background:radial-gradient(circle, rgba(113,75,103,0.2) 0%, transparent 70%);"></div>
+  <div class="slide-inner" style="text-align:center;">
+
+    <h2 class="team-title">
+      Built with ☕,<br/>
+      <span style="background:linear-gradient(135deg,#b47ea3,#e0a5cf,#714B67);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">passion &amp; precision</span>
+    </h2>
+    <p class="team-subtitle" style="margin-top:20px;">
+      A full-stack POS system — frontend, backend, database, WebSocket, and AI — shipped in a single hackathon.
+    </p>
+
+    <div class="final-card">
+      <div style="font-size:48px;margin-bottom:20px;">☕</div>
+      <h3 style="font-size:28px;font-weight:800;color:white;margin-bottom:12px;">BrewMatic POS</h3>
+      <p style="font-size:16px;color:rgba(255,255,255,0.6);max-width:540px;margin:0 auto;line-height:1.7;">
+        A complete React + Vite frontend, Node.js + Express + SQLite backend, real-time WebSocket sync,
+        co-occurrence AI suggestions, and a printable receipt system. Fully offline-capable.
+        Zero cloud dependencies. Production-grade.
+      </p>
+
+      <div class="final-badges">
+        <div class="final-badge">⚛️ React 18</div>
+        <div class="final-badge">⚡ Vite 8</div>
+        <div class="final-badge">🟢 Node.js</div>
+        <div class="final-badge">🗄️ SQLite</div>
+        <div class="final-badge">🔌 WebSocket</div>
+        <div class="final-badge">📊 Recharts</div>
+        <div class="final-badge">🤖 AI Suggestions</div>
+        <div class="final-badge">📴 Offline-first</div>
+        <div class="final-badge">🔒 Secrets-safe</div>
+        <div class="final-badge">🖨️ Print receipts</div>
+        <div class="final-badge">📱 Responsive</div>
+        <div class="final-badge">🎨 Premium UI</div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;text-align:left;">
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;background:rgba(255,255,255,0.03);">
+        <div style="font-size:20px;margin-bottom:10px;">🚀</div>
+        <h4 style="font-weight:700;margin-bottom:8px;">Quick Start</h4>
+        <div style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.6);line-height:2;">
+          <div><span style="color:#34d399;">$</span> npm run setup</div>
+          <div><span style="color:#34d399;">$</span> npm run dev:all</div>
+        </div>
+        <p style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.35);">Web :5173 · API :8000 · Kitchen /kitchen</p>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;background:rgba(255,255,255,0.03);">
+        <div style="font-size:20px;margin-bottom:10px;">📁</div>
+        <h4 style="font-weight:700;margin-bottom:8px;">Codebase</h4>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:2;">
+          <div>src/ — React frontend (Vite)</div>
+          <div>backend/ — Express + SQLite</div>
+          <div>backend/routes/ — 6 REST routers</div>
+          <div>src/store/seed.js — single truth</div>
+        </div>
+      </div>
+      <div style="border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;background:rgba(255,255,255,0.03);">
+        <div style="font-size:20px;margin-bottom:10px;">☕</div>
+        <h4 style="font-weight:700;margin-bottom:8px;">Coupon Codes</h4>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:2.2;">
+          <div><span style="font-family:monospace;background:rgba(113,75,103,0.2);color:#c084fc;padding:2px 8px;border-radius:4px;">WELCOME10</span> &nbsp; 10% off</div>
+          <div><span style="font-family:monospace;background:rgba(113,75,103,0.2);color:#c084fc;padding:2px 8px;border-radius:4px;">FLAT50</span> &nbsp;&nbsp;&nbsp; ₹50 flat off</div>
+        </div>
+        <p style="margin-top:10px;font-size:12px;color:rgba(255,255,255,0.35);">Auto: 3× Cappuccino = 15% off</p>
+      </div>
+    </div>
+
+    <p style="margin-top:60px;font-size:14px;color:rgba(255,255,255,0.2);">
+      BrewMatic POS · Odoo Cafe Hackathon · 2026
+    </p>
+  </div>
+</section>
+
+<!-- Back to Top -->
+<button id="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const el = document.getElementById('progress-bar')
+    const btn = document.getElementById('back-top')
+    const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
+    el.style.width = pct + '%'
+    btn.classList.toggle('visible', window.scrollY > 400)
+  })
+
+  // Active nav links
+  const sections = document.querySelectorAll('section[id]')
+  const navLinks = document.querySelectorAll('.nav-links a')
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => {
+          a.style.color = a.getAttribute('href') === '#' + e.target.id
+            ? 'white'
+            : 'rgba(255,255,255,0.6)'
+          a.style.background = a.getAttribute('href') === '#' + e.target.id
+            ? 'rgba(113,75,103,0.2)'
+            : 'transparent'
+        })
+      }
+    })
+  }, { threshold: 0.4 })
+  sections.forEach(s => observer.observe(s))
+</script>
+
+</body>
+</html>
