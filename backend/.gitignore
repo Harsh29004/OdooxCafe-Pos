@@ -1,0 +1,7 @@
+# Node backend artifacts
+node_modules/
+
+# SQLite database (regenerated/seeded on first run)
+cafe_pos.db
+cafe_pos.db-shm
+cafe_pos.db-wal

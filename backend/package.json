@@ -1,0 +1,20 @@
+{
+  "name": "odoo-cafe-pos-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Node.js + Express + SQLite backend for the Odoo Cafe POS (local-first, offline).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node seed.js --reset"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "odoo-cafe-pos": "file:..",
+    "ws": "^8.18.0"
+  }
+}
