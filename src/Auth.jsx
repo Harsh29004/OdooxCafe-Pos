@@ -106,10 +106,6 @@ export function Login() {
     e.preventDefault()
     dispatch({ type: 'LOGIN', email, password })
   }
-  const quick = (em, pw) => {
-    setEmail(em); setPassword(pw)
-    dispatch({ type: 'LOGIN', email: em, password: pw })
-  }
 
   return (
     <AuthShell wide={wide}>
@@ -131,13 +127,6 @@ export function Login() {
         <Button type="submit" style={{ width: '100%' }}>Sign in <ArrowRight style={{ height: 16, width: 16 }} /></Button>
       </form>
 
-      <div style={{ marginTop: 24, borderRadius: 12, border: `1px solid ${t.slate200}`, background: t.white, padding: 16 }}>
-        <p style={{ marginBottom: 8, fontSize: 12, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: t.slate400 }}>Demo accounts — one tap</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          <Button variant="outline" size="sm" onClick={() => quick('admin@cafe.com', 'admin')}>👑 Admin</Button>
-          <Button variant="outline" size="sm" onClick={() => quick('priya@cafe.com', 'priya')}>☕ Cashier (Priya)</Button>
-        </div>
-      </div>
 
       <p style={{ marginTop: 24, textAlign: 'center', fontSize: 14, color: t.slate500 }}>
         New here? <Link to="/signup" style={linkStyle}>Create an account</Link>

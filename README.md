@@ -26,18 +26,18 @@ Then open `.env` and fill in your values:
 ```env
 # Admin user
 VITE_ADMIN_NAME=Admin Owner
-VITE_ADMIN_EMAIL=admin@cafe.com
+VITE_ADMIN_EMAIL=your-admin@email.com
 VITE_ADMIN_PASSWORD=your-secure-password
 
 # Employee 1
-VITE_EMP1_NAME=Priya Sharma
-VITE_EMP1_EMAIL=priya@cafe.com
-VITE_EMP1_PASSWORD=your-secure-password
+VITE_EMP1_NAME=Employee One
+VITE_EMP1_EMAIL=emp1@yourdomain.com
+VITE_EMP1_PASSWORD=emp1-secure-password
 
 # Employee 2
-VITE_EMP2_NAME=Rahul Verma
-VITE_EMP2_EMAIL=rahul@cafe.com
-VITE_EMP2_PASSWORD=your-secure-password
+VITE_EMP2_NAME=Employee Two
+VITE_EMP2_EMAIL=emp2@yourdomain.com
+VITE_EMP2_PASSWORD=emp2-secure-password
 
 # UPI Payment
 VITE_UPI_ID=your-upi-id@bank
