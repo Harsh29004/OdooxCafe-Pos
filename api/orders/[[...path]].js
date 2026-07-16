@@ -1,13 +1,33 @@
-// api/orders/index.js — GET /api/orders (with optional ?status= and ?search= filters)
+// api/orders/[[...path]].js — GET /api/orders and GET /api/orders/:id
+// Consolidated into one function for Vercel Hobby plan limits.
 import { supabase } from '../_lib/supabase.js'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*')
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
-  try {
-    const { status, search } = req.query || {}
+  const segments = req.query.path || []
+  const id = Array.isArray(segments) ? segments[0] : segments
 
+  try {
+    // GET /api/orders/:id
+    if (id) {
+      const { data: o } = await supabase.from('orders').select('*').eq('id', id).single()
+      if (!o) return res.status(404).json({ error: 'Not found' })
+
+      const { data: items } = await supabase
+        .from('order_items')
+        .select('productId,name,price,qty,tax')
+        .eq('orderId', o.id)
+
+      let extra = {}
+      try { extra = o.extra ? JSON.parse(o.extra) : {} } catch { /* ignore */ }
+      const { extra: _drop, ...cols } = o
+      return res.status(200).json({ ...extra, ...cols, items: items || [] })
+    }
+
+    // GET /api/orders?status=...&search=...
+    const { status, search } = req.query || {}
     let query = supabase.from('orders').select('*').order('createdAt', { ascending: false })
     if (status) query = query.eq('status', status)
 
