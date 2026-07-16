@@ -7,16 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "backend": "npm --prefix backend start",
-    "backend:install": "npm --prefix backend install",
-    "seed": "npm --prefix backend run seed",
-    "setup": "npm install && npm --prefix backend install",
-    "kill:port": "powershell -Command \"$p = Get-NetTCPConnection -LocalPort 8000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique; if ($p) { Stop-Process -Id $p -Force -ErrorAction SilentlyContinue; Write-Host 'Freed port 8000 (PID' $p ')' } else { Write-Host 'Port 8000 already free' }\"",
-    "predev:all": "npm run kill:port",
-    "dev:all": "concurrently -n web,api -c cyan,magenta \"npm run dev\" \"npm run backend\"",
-    "start": "npm run build && npm run backend"
+    "seed:supabase": "node scripts/seed-supabase.js",
+    "seed:supabase:reset": "node scripts/seed-supabase.js --reset"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.0",
     "lucide-react": "^0.460.0",
     "qrcode": "^1.5.4",
     "react": "^18.3.1",
@@ -26,7 +21,6 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "concurrently": "^10.0.3",
     "vite": "^8.0.16"
   }
 }

@@ -12,6 +12,12 @@
 // syncs to it in the background.
 // ---------------------------------------------------------------------------
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+// Supabase Realtime client for live-sync (replaces raw WebSocket)
+const sbUrl = import.meta.env.VITE_SUPABASE_URL
+const sbKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseClient = sbUrl && sbKey ? createClient(sbUrl, sbKey) : null
 
 /* =====================================================================
  * 1) Money helpers
@@ -97,14 +103,19 @@ export async function fetchSuggestions(cartProductIds = []) {
   if (!r.ok) throw new Error('GET /api/ai/suggestions ' + r.status)
   return r.json()
 }
-function connectWS(onMessage) {
+// Supabase Realtime subscription (replaces WebSocket).
+// Listens to changes on the `meta` table — when any client saves state,
+// the lastSync key is updated, triggering all other clients to re-fetch.
+function subscribeRealtime(onStateChange) {
+  if (!supabaseClient) return null
   try {
-    const proto = location.protocol === 'https:' ? 'wss' : 'ws'
-    const ws = new WebSocket(`${proto}://${location.host}/ws`)
-    ws.onmessage = (e) => {
-      try { onMessage(JSON.parse(e.data)) } catch { /* ignore */ }
-    }
-    return ws
+    const channel = supabaseClient
+      .channel('meta-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'meta' }, () => {
+        onStateChange()
+      })
+      .subscribe()
+    return channel
   } catch {
     return null
   }
@@ -384,19 +395,21 @@ export function StoreProvider({ children }) {
     }, 350)
   }, [state])
 
-  // 3) Live sync over WebSocket (another device saved → re-fetch).
+  // 3) Live sync over Supabase Realtime (another device saved → re-fetch).
   useEffect(() => {
-    const ws = connectWS((msg) => {
-      if (msg.type === 'state' && msg.from !== clientId.current) {
-        apiGetState()
-          .then((domain) => {
-            skipPersist.current = true
-            dispatch({ type: '__HYDRATE_DOMAIN__', domain })
-          })
-          .catch(() => {})
-      }
+    const channel = subscribeRealtime(() => {
+      apiGetState()
+        .then((domain) => {
+          skipPersist.current = true
+          dispatch({ type: '__HYDRATE_DOMAIN__', domain })
+        })
+        .catch(() => {})
     })
-    return () => ws && ws.close()
+    return () => {
+      if (channel && supabaseClient) {
+        supabaseClient.removeChannel(channel)
+      }
+    }
   }, [])
 
   // 4) Offline cross-tab sync via the localStorage `storage` event.
